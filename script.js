@@ -1,159 +1,18 @@
-var parkingData = [];
-    var idCounter = 1;
-
-    // Check-in form submission handler
-    $('#parkingForm').submit(function(event) {
-      event.preventDefault();
-      var name = $('#name').val();
-      var phone = $('#phone').val();
-      var licensePlate = $('#licensePlate').val();
-      var timeIn = new Date();
-
-      var entry = {
-        id: idCounter++,
-        name: name,
-        phone: phone,
-        licensePlate: licensePlate,
-        timeIn: timeIn,
-        money: 0
-      };
-
-      parkingData.push(entry);
-      $('#parkingForm')[0].reset();
-      displayEntry(entry);
-    });
-  
-    $('#checkoutForm').submit(function(event) {
-        event.preventDefault();
-        var licensePlate = $('#licensePlateOut').val();
-      
-        var foundEntry = parkingData.find(function(entry) {
-          return entry.licensePlate === licensePlate;
-        });
-      
-        if (foundEntry && !foundEntry.checkedOut) {
-          var timeIn = foundEntry.timeIn;
-          var timeOut = new Date();
-          var durationInMinutes = Math.ceil((timeOut - timeIn) / 60000); // Calculate duration in minutes
-      
-          foundEntry.money = calculateMoney(durationInMinutes);
-          foundEntry.checkedOut = true; // Mark entry as checked out
-      
-          var timeInFormatted = formatDate(timeIn);
-          var timeOutFormatted = formatDate(timeOut);
-      
-          var resultHtml = '<h4>Check-Out Details:</h4>';
-          resultHtml += '<p><b>ID:</b> ' + foundEntry.id + '</p>';
-          resultHtml += '<p><b>Name:</b> ' + foundEntry.name + '</p>';
-          resultHtml += '<p><b>Phone:</b> ' + foundEntry.phone + '</p>';
-          resultHtml += '<p><b>License Plate:</b> ' + foundEntry.licensePlate + '</p>';
-          resultHtml += '<p><b>Time In:</b> ' + timeInFormatted + '</p>';
-          resultHtml += '<p><b>Time Out:</b> ' + timeOutFormatted + '</p>';
-          resultHtml += '<p><b>Duration:</b> ' + durationInMinutes + ' minutes</p>';
-          resultHtml += '<p><b>Money:</b> $' + foundEntry.money.toFixed(2) + ' Birr </p>';
-          resultHtml += '<button onclick="downloadDetails()" class = "downloadBtn" >Download Details</button>';
-      
-          $('#result').html(resultHtml);
-          $('#parkingTable tbody').empty();
-          displayParkingData();
-        } else {
-          $('#result').html('<p>Entry not found or already checked out.</p>');
-        }
-      
-        $('#checkoutForm')[0].reset();
-      });
-      
-    
-  
-  function formatDate(date) {
-    var options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: 'numeric' };
-    return date.toLocaleString('en-US', options);
-  }
-  
-  
-  function downloadDetails() {
-    var result = $('#result').html();
-    var cleanResult = result.replace(/<[^>]*>/g, '');
-    var filename = 'checkout_details.txt';
-    var element = document.createElement('a');
-    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(cleanResult));
-    element.setAttribute('download', filename);
-    element.style.display = 'none';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-  
-    var removeButton = document.getElementById('removeButton');
-    if (!removeButton) {
-      removeButton = document.createElement('button');
-      removeButton.setAttribute('id', 'removeButton');
-      removeButton.innerHTML = 'Remove';
-      removeButton.addEventListener('click', function() {
-        $('#result').empty();
-        removeButton.remove();
-      });
-  
-      $('#result').append(removeButton);
-  }}
-  
-  
-
-    
-    function calculateMoney(durationInMinutes) {
-      var baseCharge = 5; 
-      var additionalCharge = 0.1; 
-      var totalCharge = baseCharge;
-
-      if (durationInMinutes > 1) {
-        totalCharge += (durationInMinutes - 1) * additionalCharge;
-      }
-
-      return totalCharge;
-    }
-   
-function removeUser(id) {
-    var index = parkingData.findIndex(function(entry) {
-      return entry.id === id;
-    });
-  
-    if (index !== -1) {
-      parkingData.splice(index, 1);
-      $('#parkingTable tbody').empty();
-      displayParkingData();
-    }
-  }
-  
-
-   
-   function displayEntry(entry) {
-    var timeIn = entry.timeIn.toLocaleString('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true
-    });
-  
-    var rowHtml = '<tr>';
-    rowHtml += '<td>' + entry.id + '</td>';
-    rowHtml += '<td>' + entry.name + '</td>';
-    rowHtml += '<td>' + entry.phone + '</td>';
-    rowHtml += '<td>' + entry.licensePlate + '</td>';
-    rowHtml += '<td>' + timeIn + '</td>';
-    rowHtml += '<td>$' + entry.money.toFixed(2) + '</td>';
-    rowHtml += '<td><button class="btn btn-danger btn-sm" onclick="removeUser(' + entry.id + ')">Remove</button></td>';
-    rowHtml += '</tr>';
-  
-    $('#parkingTable tbody').append(rowHtml);
-  }
-  
-
-    function displayParkingData() {
-      parkingData.forEach(function(entry) {
-        displayEntry(entry);
-      });
-    }
-
-    displayParkingData();
+const KEY="parkflow-v1",RATE=3.5,MAX=28,ZONES=["A","B","C"],ACCESS=new Set(["A01","B01","C01"]),$=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const seed={active:[{id:crypto.randomUUID(),plate:"BXM 204",type:"SUV",driver:"Maya Chen",phone:"",space:"A03",timeIn:Date.now()-4680000},{id:crypto.randomUUID(),plate:"EV 8821",type:"EV",driver:"Jordan Lee",phone:"",space:"B05",timeIn:Date.now()-1860000},{id:crypto.randomUUID(),plate:"KDT 417",type:"Car",driver:"Sam Rivera",phone:"",space:"C07",timeIn:Date.now()-8760000}],history:[]};
+let state=load(),zone="A",selected="";
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&Array.isArray(v.active)&&Array.isArray(v.history))return v}catch(e){console.warn(e)}return seed}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}function spaces(){return ZONES.flatMap(z=>Array.from({length:8},(_,i)=>z+String(i+1).padStart(2,"0")))}function free(access=false){const used=new Set(state.active.map(v=>v.space));return spaces().filter(s=>!used.has(s)&&(!access||ACCESS.has(s)))}
+function fee(a,b=Date.now()){const m=Math.max(0,Math.ceil((b-a)/60000));return m<=15?0:Math.min(MAX,Math.ceil(m/60)*RATE)}function money(v){return new Intl.NumberFormat("en-US",{style:"currency",currency:"USD"}).format(v)}function time(v){return new Intl.DateTimeFormat("en-US",{hour:"numeric",minute:"2-digit"}).format(v)}function datetime(v){return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(v)}function duration(a,b=Date.now()){const m=Math.max(1,Math.ceil((b-a)/60000));return m<60?`${m} min`:`${Math.floor(m/60)}h ${m%60?m%60+"m":""}`.trim()}function esc(v){return String(v).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}function today(v){return new Date(v).toDateString()===new Date().toDateString()}
+function stats(){const n=state.active.length,h=state.history.filter(v=>today(v.timeOut)),p=Math.round(n/24*100);$("#available").textContent=24-n;$("#occupied").textContent=n;$("#checkouts").textContent=h.length;$("#revenue").textContent=money(h.reduce((a,v)=>a+v.fee,0));$("#percent").textContent=p+"%";$("#ring").style.background=`conic-gradient(var(--lime) ${p}%,#ffffff24 ${p}%)`}
+function map(){$("#tabs").innerHTML=ZONES.map(z=>`<button class="${z===zone?"active":""}" data-zone="${z}">Zone ${z}</button>`).join("");const occupied=new Map(state.active.map(v=>[v.space,v]));$("#spaces").innerHTML=spaces().filter(s=>s[0]===zone).map(s=>{const v=occupied.get(s),a=ACCESS.has(s);return `<button class="space ${v?"occupied":""} ${a?"accessible":""}" data-space="${s}" ${v?"disabled":""}>${s}<small>${v?esc(v.plate):a?"Accessible":"Open"}</small></button>`}).join("")}
+function vehicles(){const q=$("#tableSearch").value.trim().toLowerCase(),type=$("#filter").value,list=state.active.filter(v=>(v.plate.toLowerCase().includes(q)||v.driver.toLowerCase().includes(q))&&(type==="all"||v.type===type));$("#rows").innerHTML=list.map(v=>`<tr><td><div class="vehicle"><i>${esc(v.type.slice(0,3).toUpperCase())}</i><span><strong>${esc(v.plate)}</strong><small>${esc(v.type)}</small></span></div></td><td>${esc(v.driver)}</td><td><span class="pill">${v.space}</span></td><td>${time(v.timeIn)} <small>· ${duration(v.timeIn)}</small></td><td><strong>${money(fee(v.timeIn))}</strong></td><td><button class="checkout" data-out="${v.id}">Check out</button></td></tr>`).join("");$("#emptyVehicles").hidden=!!list.length;$(".table-wrap").hidden=!list.length}
+function history(){const list=[...state.history].sort((a,b)=>b.timeOut-a.timeOut).slice(0,6);$("#history").innerHTML=list.length?list.map(v=>`<article class="history-item"><i>↗</i><div><strong>${esc(v.plate)} · ${esc(v.driver)}</strong><small>${v.space} · ${datetime(v.timeOut)} · ${duration(v.timeIn,v.timeOut)}</small></div><div class="amount"><strong>${money(v.fee)}</strong><small>paid</small></div></article>`).join(""):'<div class="empty-history">Completed checkouts will appear here.</div>'}
+function options(access=$("#accessible").checked){const list=free(access);if(!list.includes(selected))selected=list[0]||"";$("#space").innerHTML=list.length?list.map(s=>`<option ${s===selected?"selected":""}>${s}${ACCESS.has(s)?" · Accessible":""}</option>`).join(""):'<option value="">No matching spaces</option>';$("#space").value=selected}function render(){stats();map();vehicles();history();options()}
+function open(space=""){selected=space||free()[0]||"";$("#accessible").checked=ACCESS.has(space);options();$("#error").textContent="";$("#checkin").hidden=false;setTimeout(()=>$("#plate").focus(),50)}function close(id){$("#"+id).hidden=true}function toast(text){const el=$("#toast");el.textContent=text;el.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("show"),2600)}
+function checkout(id){const i=state.active.findIndex(v=>v.id===id);if(i<0)return;const v=state.active[i],timeOut=Date.now(),visit={...v,timeOut,fee:fee(v.timeIn,timeOut)};state.active.splice(i,1);state.history.push(visit);save();render();$("#receiptBody").innerHTML=[["License plate",esc(v.plate)],["Parking space",v.space],["Check in",datetime(v.timeIn)],["Check out",datetime(timeOut)],["Duration",duration(v.timeIn,timeOut)],["Total",money(visit.fee)]].map((r,i)=>`<div><span>${r[0]}</span><strong class="${i===5?"total":""}">${r[1]}</strong></div>`).join("");$("#receipt").hidden=false}
+function search(){const q=$("#quickSearch").value.trim().toLowerCase(),el=$("#quickResult");if(!q){el.className="result empty";el.textContent="Start typing a plate number.";return}const v=state.active.find(v=>v.plate.toLowerCase().includes(q));if(!v){el.className="result empty";el.textContent="No active vehicle found.";return}el.className="result";el.innerHTML=`<div class="found"><strong>${esc(v.plate)}</strong><small>${esc(v.driver)} · Space ${v.space} · ${duration(v.timeIn)}</small><button class="checkout" data-out="${v.id}">Check out vehicle</button></div>`}
+function exportCsv(){const data=[["Status","Plate","Vehicle","Driver","Space","Check in","Check out","Fee"],...state.active.map(v=>["Active",v.plate,v.type,v.driver,v.space,new Date(v.timeIn).toISOString(),"",fee(v.timeIn).toFixed(2)]),...state.history.map(v=>["Completed",v.plate,v.type,v.driver,v.space,new Date(v.timeIn).toISOString(),new Date(v.timeOut).toISOString(),v.fee.toFixed(2)])],csv=data.map(r=>r.map(c=>`"${String(c).replaceAll('"','""')}"`).join(",")).join("\n"),a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`parkflow-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);toast("Activity exported successfully.")}
+$("#form").addEventListener("submit",e=>{e.preventDefault();const plate=$("#plate").value.trim().toUpperCase().replace(/\s+/g," "),space=$("#space").value;if(state.active.some(v=>v.plate.replace(/\s/g,"")===plate.replace(/\s/g,""))){$("#error").textContent="That vehicle is already checked in.";return}if(!free().includes(space)){ $("#error").textContent="That space is no longer available.";return}state.active.push({id:crypto.randomUUID(),plate,type:$("#type").value,driver:$("#driver").value.trim(),phone:$("#phone").value.trim(),space,timeIn:Date.now()});save();e.target.reset();close("checkin");render();toast(`${plate} checked into space ${space}.`) });
+$("#tabs").onclick=e=>{const z=e.target.closest("[data-zone]")?.dataset.zone;if(z){zone=z;map()}};$("#spaces").onclick=e=>{const s=e.target.closest("[data-space]")?.dataset.space;if(s)open(s)};document.addEventListener("click",e=>{const id=e.target.closest("[data-out]")?.dataset.out;if(id)checkout(id);const c=e.target.closest("[data-close]")?.dataset.close;if(c)close(c)});$$('.open').forEach(b=>b.onclick=()=>open());$("#accessible").onchange=()=>{selected="";options()};$("#space").onchange=e=>selected=e.target.value;$("#quickSearch").oninput=search;$("#tableSearch").oninput=vehicles;$("#filter").onchange=vehicles;$("#export").onclick=exportCsv;$("#print").onclick=()=>print();$("#clear").onclick=()=>{if(state.history.length&&confirm("Clear completed visit history from this device?")){state.history=[];save();render();toast("Visit history cleared.")}};$("#menu").onclick=()=>$("#sidebar").classList.toggle("open");$$('nav a').forEach(a=>a.onclick=()=>$("#sidebar").classList.remove("open"));$$('.backdrop').forEach(b=>b.onclick=e=>{if(e.target===b)b.hidden=true});document.onkeydown=e=>{if(e.key==="Escape")$$('.backdrop').forEach(m=>m.hidden=true)};
+function clock(){const d=new Date();$("#clock").textContent=d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"});$("#date").textContent=d.toLocaleDateString("en-US",{weekday:"long",month:"short",day:"numeric"}).toUpperCase()}clock();setInterval(clock,30000);render();setInterval(()=>{stats();vehicles();search()},60000);

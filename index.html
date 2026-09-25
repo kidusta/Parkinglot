@@ -1,75 +1,11 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <title>Parking Lot Check-In/Check-Out</title>
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-  <link rel="stylesheet" href="style.css">
-</head>
-
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12 col-lg-6">
-        <div class="logo">
-          <img src="logo.png" alt="Logo">
-        </div>
-        <h2>Parking Lot Check-In/Check-Out</h2>
-    
-        
-            <form id="parkingForm">
-                <div class="form-group">
-                    <label for="name">Name:</label>
-                    <input type="text" class="form-control custom-input" id="name" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="phone">Phone:</label>
-                    <input type="text" class="form-control custom-input" id="phone" required>
-                  </div>
-                  <div class="form-group">
-                    <label for="licensePlate">License Plate:</label>
-                    <input type="text" class="form-control custom-input" id="licensePlate" required>
-                  </div>
-                  <button type="submit" class="btn btn-primary">Check In</button>
-            </form>
-          </div>
-          <div class="col-md-12 col-lg-6 form2">
-            <form id="checkoutForm">
-                <div class="form-group ">
-                    <label for="licensePlateOut">License Plate:</label>
-                    <input type="text" class="form-control custom-input" id="licensePlateOut" required>
-                  </div>
-                  <button type="submit" class="btn btn-danger">Check Out</button>
-            </form>
-          </div>
-        </div>
-    
-        <hr>
-    
-        <table id="parkingTable" class="table">
-            <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Phone</th>
-                  <th>License Plate</th>
-                  <th>Time In</th>
-                  <th>Money</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-        </table>
-    
-        <div id="result" class="mt-4"></div>
-      </div>
-      
-
-  <!-- Include Bootstrap JS and jQuery -->
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-  <script src="script.js"></script>
-</body>
-
-</html>
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="ParkFlow smart parking dashboard"><title>ParkFlow — Smart Parking</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
+<aside id="sidebar"><a class="brand" href="#top"><b>P</b><span><strong>ParkFlow</strong><small>Smart parking</small></span></a><nav><a class="active" href="#top">◫ Overview</a><a href="#map">⌖ Parking map</a><a href="#vehicles">▤ Vehicles</a><a href="#activity">↗ Activity</a></nav><div class="online"><i></i><span><strong>System online</strong><small>Saved on this device</small></span></div><div class="user"><b>KT</b><span><strong>Parking admin</strong><small>Day shift</small></span></div></aside>
+<main id="top"><header><button id="menu" aria-label="Menu">☰</button><div><small id="date"></small><h1>Good day, <em>Operator.</em></h1></div><div class="head-actions"><span class="clock"><i></i><b id="clock">--:--</b></span><button class="primary open">＋ Check in vehicle</button></div></header>
+<section class="hero"><div><small>LIVE LOT STATUS</small><h2>Parking, without<br>the guesswork.</h2><p>See every bay, move vehicles through faster, and keep a clear record of every visit.</p><button class="light open">Check in a vehicle →</button><a href="#map">View parking map</a></div><div class="ring" id="ring"><span><b id="percent">0%</b><small>occupied</small></span></div></section>
+<section class="stats"><article><i class="green">P</i><span>Available spaces<b id="available">0</b><small>of 24 total</small></span></article><article><i class="blue">▣</i><span>Parked vehicles<b id="occupied">0</b><small>Currently on site</small></span></article><article><i class="orange">↗</i><span>Today's checkouts<b id="checkouts">0</b><small>Completed visits</small></span></article><article><i class="purple">$</i><span>Today's revenue<b id="revenue">$0.00</b><small>Estimated total</small></span></article></section>
+<div class="grid"><section class="panel" id="map"><div class="title"><div><small>SPACE FINDER</small><h3>Parking map</h3></div><div class="legend"><span>● Available</span><span>● Occupied</span><span>● Accessible</span></div></div><div id="tabs" class="tabs"></div><div id="spaces" class="spaces"></div><p class="hint">Select an available space to start a check-in.</p></section>
+<aside class="panel quick"><div class="title"><div><small>QUICK ACTION</small><h3>Find a vehicle</h3></div></div><label class="search">⌕ <input id="quickSearch" placeholder="Enter license plate"></label><div id="quickResult" class="result empty">Start typing a plate number.</div><div class="rate"><span>HOURLY RATE <b>$3.50</b></span><p>First 15 minutes are free. Daily maximum is $28.</p></div><button id="export" class="secondary">⇩ Export activity (.csv)</button></aside></div>
+<section class="panel vehicle-panel" id="vehicles"><div class="title table-title"><div><small>ON SITE</small><h3>Active vehicles</h3></div><div class="filters"><label class="search">⌕ <input id="tableSearch" placeholder="Search plate or driver"></label><select id="filter"><option value="all">All types</option><option>Car</option><option>SUV</option><option>Motorcycle</option><option>EV</option></select></div></div><div class="table-wrap"><table><thead><tr><th>Vehicle</th><th>Driver</th><th>Space</th><th>Checked in</th><th>Current fee</th><th></th></tr></thead><tbody id="rows"></tbody></table></div><div id="emptyVehicles" class="empty-state" hidden><b>✓</b><h4>The lot is clear</h4><p>Checked-in vehicles will appear here.</p></div></section>
+<section class="panel activity" id="activity"><div class="title"><div><small>RECENT</small><h3>Completed visits</h3></div><button id="clear">Clear history</button></div><div id="history"></div></section><footer><b>ParkFlow</b><span>Simple tools for smoother parking.</span><a href="https://github.com/kidusta/Parkinglot" target="_blank">View source ↗</a></footer></main>
+<div class="backdrop" id="checkin" hidden><section class="modal" role="dialog" aria-modal="true"><button class="close" data-close="checkin">×</button><small>NEW ARRIVAL</small><h2>Check in a vehicle</h2><p>Add the driver and vehicle details, then assign a free space.</p><form id="form"><div class="form-grid"><label>License plate *<input id="plate" required maxlength="12" placeholder="ABC 1234"></label><label>Vehicle type *<select id="type"><option>Car</option><option>SUV</option><option>Motorcycle</option><option>EV</option></select></label><label>Driver name *<input id="driver" required maxlength="40" placeholder="Alex Morgan"></label><label>Phone <em>optional</em><input id="phone" type="tel" maxlength="20" placeholder="(555) 123-4567"></label><label>Parking space *<select id="space" required></select></label><label>Rate<input value="$3.50 / hour · $28 max" disabled></label></div><label class="toggle"><input id="accessible" type="checkbox"> Driver needs an accessible space</label><p id="error" class="error"></p><div class="actions"><button type="button" data-close="checkin">Cancel</button><button class="primary">Confirm check-in</button></div></form></section></div>
+<div class="backdrop" id="receipt" hidden><section class="modal receipt-modal"><button class="close" data-close="receipt">×</button><b class="success">✓</b><small>CHECKOUT COMPLETE</small><h2>Vehicle checked out</h2><div id="receiptBody" class="receipt"></div><div class="actions"><button id="print">Print receipt</button><button class="primary" data-close="receipt">Done</button></div></section></div><div id="toast"></div><script src="script.js"></script></body></html>
